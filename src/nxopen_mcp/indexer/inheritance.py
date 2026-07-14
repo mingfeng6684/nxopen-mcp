@@ -32,7 +32,9 @@ def extract_bases(dll_paths: list[Path]) -> dict[str, str]:
     bases: dict[str, str] = {}
     for dll in dll_paths:
         try:
-            asm = Assembly.LoadFile(str(dll))
+            # LoadFrom (not LoadFile): resolves sibling dependencies from
+            # the same directory, e.g. NXOpen.dll -> NXOpen.Utilities.dll.
+            asm = Assembly.LoadFrom(str(dll))
             for t in asm.GetExportedTypes():
                 if t.BaseType is not None and t.FullName and t.BaseType.FullName:
                     if t.BaseType.FullName != "System.Object":
