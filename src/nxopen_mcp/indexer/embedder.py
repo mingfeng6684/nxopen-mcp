@@ -43,8 +43,12 @@ class BGEM3Embedder:
             "BAAI/bge-m3", use_fp16=torch.cuda.is_available())
 
     def encode(self, texts: list[str]) -> tuple[np.ndarray, list[dict[str, float]]]:
+        # max_length=1024 (default 8192): API-doc chunks rarely carry useful
+        # signal past 1k tokens, and CPU attention cost grows quadratically —
+        # a few giant NXOpen.UF entries would otherwise stall a whole batch.
         out = self._model.encode(
-            texts, return_dense=True, return_sparse=True, batch_size=32)
+            texts, return_dense=True, return_sparse=True,
+            batch_size=32, max_length=1024)
         dense = np.asarray(out["dense_vecs"], dtype=np.float32)
         norms = np.linalg.norm(dense, axis=1, keepdims=True)
         dense = dense / np.where(norms == 0, 1.0, norms)
