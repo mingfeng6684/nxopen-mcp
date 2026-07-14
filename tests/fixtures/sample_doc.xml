@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly><name>NXOpen</name></assembly>
+    <members>
+        <member name="T:NXOpen.CAM.CavityMillingBuilder">
+            <summary>  Represents a CavityMilling Builder  </summary>
+             <remarks> <para>To create a new instance of this class, use <see cref="M:NXOpen.CAM.OperationCollection.CreateCavityMillingBuilder(NXOpen.CAM.CAMObject)"> NXOpen.CAM.OperationCollection.CreateCavityMillingBuilder  </see></para>
+            <para> Created in NX5.0.0 </para>
+             </remarks>
+        </member>
+        <member name="P:NXOpen.CAM.CavityMillingBuilder.BlankGeometry">
+            <summary>  Returns  the blank geometry builder
+             </summary>
+             <remarks> <para> Created in NX8.0.0 </para>
+            <para>License requirements: None.</para> </remarks></member>
+        <member name="M:NXOpen.CAM.OperationCollection.CreateCavityMillingBuilder(NXOpen.CAM.CAMObject)">
+            <summary>  Creates a planar milling cavity operation builder
+             </summary>
+             <remarks> <para> Created in NX5.0.0 </para>
+            <para>License requirements: cam_base ("CAM BASE")</para> </remarks>
+             <param name="param"> operation to be edited </param>
+            <returns> operation builder created </returns>
+        </member>
+    </members>
+</doc>
