@@ -37,3 +37,18 @@ def test_rebuild_does_not_duplicate_postings(tmp_path):
     store = Store(db)
     second = store.conn.execute("SELECT count(*) c FROM sparse_postings").fetchone()["c"]
     assert second == first
+
+
+def test_rebuild_does_not_duplicate_inheritance(tmp_path, monkeypatch):
+    import nxopen_mcp.indexer.build as build_mod
+    monkeypatch.setattr(build_mod, "extract_bases",
+                        lambda dlls: {"NXOpen.CAM.CavityMillingBuilder": "NXOpen.Builder"})
+    db = tmp_path / "index.db"
+    for _ in range(2):
+        build_index([FIXTURE], db, FakeEmbedder(),
+                     dll_paths=[Path("dummy.dll")], on_progress=lambda _: None)
+    store = Store(db)
+    rows = store.conn.execute(
+        "SELECT count(*) c FROM inheritance WHERE type_name = ?",
+        ["NXOpen.CAM.CavityMillingBuilder"]).fetchone()["c"]
+    assert rows == 1

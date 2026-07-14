@@ -48,6 +48,11 @@ def build_index(
 
     if dll_paths:
         on_progress("extracting inheritance from DLLs ...")
+        # Inheritance is fully derived from the DLLs on every build, so clear
+        # stale rows first -- otherwise re-indexing duplicates every
+        # (type, ancestor, depth) row and get_class returns N copies of each
+        # ancestor/inherited member after N builds.
+        store.conn.execute("DELETE FROM inheritance")
         store.insert_inheritance(build_chains(extract_bases(dll_paths)))
 
     id_rows = store.conn.execute("SELECT id, full_name FROM members").fetchall()

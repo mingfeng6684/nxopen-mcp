@@ -93,10 +93,17 @@ def create_server(store: Store, searcher: HybridSearcher) -> FastMCP:
         out = []
         for b in builders[:3]:
             out.append(format_member(b))
-            if b.get("creator_cref"):
-                creator = b["creator_cref"].split("(")[0].rsplit(".", 1)[1]
-                out.append(f"\nCreate via: `{b['creator_cref']}`")
-                out.append(_BUILDER_SKELETON.format(creator=creator))
+            cref = b.get("creator_cref")
+            if cref:
+                pre_paren = cref.split("(")[0]
+                # creator_cref is expected to be a dotted Type.Method
+                # reference (e.g. "OperationCollection.CreateFooBuilder(...)");
+                # guard against a dotless value so rsplit(".", 1)[1] can't
+                # IndexError, and just skip the creator/skeleton lines.
+                if "." in pre_paren:
+                    creator = pre_paren.rsplit(".", 1)[1]
+                    out.append(f"\nCreate via: `{cref}`")
+                    out.append(_BUILDER_SKELETON.format(creator=creator))
             out.append("")
         return "\n".join(out)
 
