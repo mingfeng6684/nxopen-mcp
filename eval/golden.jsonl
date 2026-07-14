@@ -3,8 +3,31 @@
 {"query": "CavityMillingBuilder", "expected": "NXOpen.CAM.CavityMillingBuilder"}
 {"query": "毛坯幾何 blank geometry", "expected": "NXOpen.CAM.CavityMillingBuilder.BlankGeometry"}
 {"query": "open a part file", "expected": "NXOpen.PartCollection.Open"}
-{"query": "取得目前工作部件 work part", "expected": "NXOpen.Session.Parts"}
+{"query": "取得目前工作部件 work part", "expected": "NXOpen.PartCollection.Work"}
 {"query": "hole drilling builder", "expected": "NXOpen.CAM.OperationCollection.CreateHoleDrillingBuilder"}
-{"query": "刀具路徑生成 generate tool path", "expected": "NXOpen.CAM.CAMObject.GenerateToolPath"}
+{"query": "刀具路徑生成 generate tool path", "expected": "NXOpen.CAM.CAMSetup.GenerateToolPath"}
 {"query": "CAM setup 建立", "expected": "NXOpen.Part.CreateCamSetup"}
-{"query": "operation feed rate 進給率", "expected": "NXOpen.CAM.FeedsBuilder"}
+{"query": "operation feed rate 進給率設定 builder", "expected": "NXOpen.CAM.FeedsBuilder"}
+{"query": "HoleDrillingBuilder", "expected": "NXOpen.CAM.HoleDrillingBuilder"}
+{"query": "CAMSetup", "expected": "NXOpen.CAM.CAMSetup"}
+{"query": "FeedsBuilder", "expected": "NXOpen.CAM.FeedsBuilder"}
+{"query": "PlanarMillingBuilder", "expected": "NXOpen.CAM.PlanarMillingBuilder"}
+{"query": "ToolBuilder", "expected": "NXOpen.CAM.ToolBuilder"}
+{"query": "postprocess operations to NC code 後處理", "expected": "NXOpen.CAM.CAMSetup.Postprocess"}
+{"query": "建立刀具 create a tool in a group", "expected": "NXOpen.CAM.NCGroupCollection.CreateTool"}
+{"query": "face milling operation builder 面銑", "expected": "NXOpen.CAM.OperationCollection.CreateFaceMillingBuilder"}
+{"query": "planar milling operation builder 平面銑", "expected": "NXOpen.CAM.OperationCollection.CreatePlanarMillingBuilder"}
+{"query": "取得零件的 CAM setup 物件", "expected": "NXOpen.Part.CAMSetup"}
+{"query": "collection of all CAM operations in the setup", "expected": "NXOpen.CAM.CAMSetup.CAMOperationCollection"}
+{"query": "孔加工的進給 builder hole machining feeds", "expected": "NXOpen.CAM.HoleMachiningBuilder.FeedsBuilder"}
+{"query": "cavity milling cut level 切削層", "expected": "NXOpen.CAM.CavityMillingBuilder.CutLevel"}
+{"query": "trim boundary of cavity milling 修剪邊界", "expected": "NXOpen.CAM.CavityMillingBuilder.TrimBoundary"}
+{"query": "CAM operation base class 操作基底類別", "expected": "NXOpen.CAM.Operation"}
+{"query": "NC group 群組類別", "expected": "NXOpen.CAM.NCGroup"}
+{"query": "cutting tool class in CAM 刀具類別", "expected": "NXOpen.CAM.Tool"}
+{"query": "session 中所有 part 的集合", "expected": "NXOpen.Session.Parts"}
+{"query": "drill geometry builder 鑽孔幾何", "expected": "NXOpen.CAM.DrillGeomBuilder"}
+{"query": "mill geometry builder 銑削幾何", "expected": "NXOpen.CAM.MillGeomBuilder"}
+{"query": "怎麼開啟既有的 prt 檔案", "expected": "NXOpen.PartCollection.Open"}
+{"query": "MillGeomBuilder 的用途", "expected": "NXOpen.CAM.MillGeomBuilder"}
+{"query": "如何後處理成 G code", "expected": "NXOpen.CAM.CAMSetup.Postprocess"}

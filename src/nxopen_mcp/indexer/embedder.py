@@ -36,7 +36,11 @@ class BGEM3Embedder:
 
     def __init__(self) -> None:
         from FlagEmbedding import BGEM3FlagModel  # lazy: pulls torch
-        self._model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=True)
+        import torch  # noqa: PLC0415 — decide fp16 by device
+        # fp16 is a big win on CUDA but *slower* than fp32 on CPU
+        # (no hardware fp16 path), so enable it only when a GPU is used.
+        self._model = BGEM3FlagModel(
+            "BAAI/bge-m3", use_fp16=torch.cuda.is_available())
 
     def encode(self, texts: list[str]) -> tuple[np.ndarray, list[dict[str, float]]]:
         out = self._model.encode(
