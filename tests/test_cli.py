@@ -29,3 +29,19 @@ def test_serve_without_index_gives_guidance(tmp_path):
     result = runner.invoke(app, ["serve", "--db", str(tmp_path / "nope.db")])
     assert result.exit_code == 1
     assert "nxopen-mcp index" in result.output  # 指引先跑 index
+
+
+def test_fake_embedder_hook_missing_module_fails_helpfully(tmp_path, monkeypatch):
+    monkeypatch.setenv("NXOPEN_MCP_FAKE_EMBEDDER", "1")
+    import builtins
+    real_import = builtins.__import__
+    def block_tests_fakes(name, *a, **k):
+        if name == "tests.fakes":
+            raise ImportError("No module named 'tests'")
+        return real_import(name, *a, **k)
+    monkeypatch.setattr(builtins, "__import__", block_tests_fakes)
+    (tmp_path / "NXOpen.xml").write_text("<doc><members/></doc>")
+    result = runner.invoke(app, ["index", "--nx-path", str(tmp_path),
+                                 "--db", str(tmp_path / "i.db")])
+    assert result.exit_code == 1
+    assert "NXOPEN_MCP_FAKE_EMBEDDER" in result.output

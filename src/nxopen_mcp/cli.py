@@ -13,8 +13,14 @@ DEFAULT_DB = Path.home() / ".nxopen-mcp" / "index.db"
 
 def _make_embedder():
     if os.environ.get("NXOPEN_MCP_FAKE_EMBEDDER"):
-        from tests.fakes import FakeEmbedder  # test hook only
-        return FakeEmbedder()
+        try:
+            from tests.fakes import FakeEmbedder  # test hook only
+            return FakeEmbedder()
+        except ImportError:
+            typer.echo("error: NXOPEN_MCP_FAKE_EMBEDDER is a dev-only hook; "
+                       "it requires the tests/ module. Unset the variable or "
+                       "use the installed source distribution.")
+            raise typer.Exit(1)
     from nxopen_mcp.indexer.embedder import BGEM3Embedder
     typer.echo("loading BGE-M3 model (first run downloads ~2GB) ...")
     return BGEM3Embedder()
