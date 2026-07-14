@@ -50,12 +50,29 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
     return d
 
 
+def _try_load_vec_extension(conn: sqlite3.Connection) -> None:
+    """Best-effort load of the sqlite-vec extension so dense_vec (a vec0
+    virtual table) is queryable from any Store connection. Extensions must
+    be loaded per-connection, so this runs on every Store() construction.
+    Degrades gracefully if sqlite-vec isn't installed or extension loading
+    isn't supported by this Python build.
+    """
+    try:
+        import sqlite_vec
+        conn.enable_load_extension(True)
+        sqlite_vec.load(conn)
+        conn.enable_load_extension(False)
+    except Exception:
+        pass
+
+
 class Store:
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(str(self.db_path))
         self.conn.row_factory = sqlite3.Row
+        _try_load_vec_extension(self.conn)
 
     def create_schema(self) -> None:
         self.conn.executescript(_SCHEMA)
