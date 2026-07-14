@@ -155,7 +155,16 @@ class Store:
         return [by_id[i] for i in ids if i in by_id]
 
     def exact_name_matches(self, token: str) -> list[int]:
+        # Name equality first, types before members, shortest name first —
+        # evaluation showed the old broad LIKE flood (20 unordered rows)
+        # buried the intended match under its own class members.
         rows = self.conn.execute(
-            "SELECT id FROM members WHERE name = ? OR full_name LIKE ? LIMIT 20",
-            [token, f"%.{token}%"]).fetchall()
+            "SELECT id FROM members WHERE name = ? "
+            "ORDER BY (kind = 'T') DESC, length(full_name) LIMIT 3",
+            [token]).fetchall()
+        if not rows:  # partial token, e.g. "CavityMilling" for the builder
+            rows = self.conn.execute(
+                "SELECT id FROM members WHERE full_name LIKE ? "
+                "ORDER BY length(full_name) LIMIT 3",
+                [f"%.{token}%"]).fetchall()
         return [r["id"] for r in rows]

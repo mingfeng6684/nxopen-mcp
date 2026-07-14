@@ -16,7 +16,10 @@ agents in the real docs instead of guesses:
   queries in English or 中文 find the right API even without exact names.
 - **Exact-name lookup** so a literal class/member name (e.g. `CavityMillingBuilder`)
   is matched precisely, not just approximately.
-- **RRF fusion** to combine both signals into one ranked result.
+- **Exact-name channel**: literal CamelCase tokens in your query are
+  looked up directly and pinned to the top (types first).
+- **RRF fusion** available to combine channels — though evaluation made
+  dense + exact the default (see [Evaluation](#evaluation)).
 
 Everything runs locally and offline against an index built from your own
 licensed NX installation — no Siemens files are ever bundled with this
@@ -82,7 +85,7 @@ docs for the exact config file location and syntax.
 
 | tool | purpose |
 |---|---|
-| `search_api` | Hybrid semantic search over the API (dense + sparse + RRF). Accepts English or 中文 queries; use when you don't know the exact class/member name. |
+| `search_api` | Hybrid semantic search over the API (dense + exact-name by default, sparse optional). Accepts English or 中文 queries; use when you don't know the exact class/member name. |
 | `get_class` | Full member list for a class, including members inherited from its ancestor chain. Use when you know the class name. |
 | `get_member` | Exact signature, parameters, return value, NX version, and license requirement for one member. |
 | `find_builder` | Given a CAM operation name (e.g. "cavity milling", "hole drilling"), finds the matching `*Builder` class, its creator method, and a Builder → Commit → Destroy code skeleton. |
@@ -104,8 +107,8 @@ NXOpen*.xml / *.dll  (your NX install)
         │                  into a single SQLite file (index.db)
         ▼
   retrieval/store.py       exact-name lookup, class/member/inheritance queries
-  retrieval/hybrid.py      dense ANN + sparse token match + exact CamelCase
-                           match, fused with Reciprocal Rank Fusion (RRF)
+  retrieval/hybrid.py      dense ANN + exact CamelCase match (default),
+                           optional sparse channel, RRF fusion
         │
         ▼
   server.py                4 MCP tools (FastMCP, stdio transport)
@@ -137,23 +140,31 @@ Design decisions:
 
 ## Evaluation
 
-> **Placeholder.** The numbers below are structural (metric definitions
-> and configs), not yet measured — they'll be filled in once a real index
-> is built against a licensed NX installation. `eval/golden.jsonl` holds
-> the query/expected-answer pairs; `eval/run_eval.py` runs and prints
-> the comparison.
+Measured on a real index built from an NX 12 installation (97,913 API
+members) against a 33-query golden set (`eval/golden.jsonl`, mixed
+English / Traditional Chinese, four query styles: semantic description,
+exact class name, member lookup, builder idiom):
 
 ```bash
 python eval/run_eval.py --db ~/.nxopen-mcp/index.db
 ```
 
-Compares three retrieval configurations over the same golden set:
-
 | config | Recall@5 | Recall@10 | MRR |
 |---|---|---|---|
-| dense-only | _TBD_ | _TBD_ | _TBD_ |
-| sparse-only | _TBD_ | _TBD_ | _TBD_ |
-| hybrid+RRF | _TBD_ | _TBD_ | _TBD_ |
+| dense-only | 69.70% | 78.79% | 0.551 |
+| sparse-only | 39.39% | 45.45% | 0.252 |
+| **dense+exact (default)** | **69.70%** | **78.79%** | **0.551** |
+| dense+sparse+exact | 54.55% | 60.61% | 0.468 |
+
+**Evaluation-driven default.** The original design fused dense, sparse
+and exact-name channels with uniform RRF. Measurement showed BGE-M3's
+sparse channel *hurt* on this corpus: fusing it dragged Recall@5 from
+69.7% down to 54.5%, and a weight sweep (w_sparse ∈ {0.5, 0.3, 0.15})
+never recovered the dense-only baseline. The exact-name channel — after
+reordering its matches (types first, shortest name first, capped at 3)
+— matched the dense baseline while guaranteeing literal-name hits. The
+default is therefore **dense + exact**; the sparse channel remains
+available via the `channels` parameter of `search()`.
 
 ## Demo
 

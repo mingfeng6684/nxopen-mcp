@@ -61,3 +61,21 @@ def test_reinsert_preserves_member_id(store):
         "SELECT id FROM members WHERE full_name = ?",
         ["NXOpen.CAM.CavityMillingBuilder"]).fetchone()["id"]
     assert after == before
+
+
+def test_exact_name_matches_prefers_type_and_short_names(store):
+    from nxopen_mcp.indexer.parser import MemberRecord
+    store.insert_members([
+        MemberRecord(
+            full_name="NXOpen.CAM.DrillMethodBuilder.FeedsBuilder", kind="P",
+            namespace="NXOpen.CAM", parent_type="NXOpen.CAM.DrillMethodBuilder",
+            name="FeedsBuilder", summary="feeds builder property"),
+        MemberRecord(
+            full_name="NXOpen.CAM.FeedsBuilder", kind="T",
+            namespace="NXOpen.CAM", parent_type=None,
+            name="FeedsBuilder", summary="feeds builder class"),
+    ])
+    ids = store.exact_name_matches("FeedsBuilder")
+    first = store.get_members_by_ids(ids[:1])[0]
+    assert first["kind"] == "T"  # the class outranks same-named properties
+    assert len(ids) <= 3

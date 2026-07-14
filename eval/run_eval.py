@@ -1,4 +1,4 @@
-"""Retrieval evaluation: Recall@k / MRR across three channel configs."""
+"""Retrieval evaluation: Recall@k / MRR across channel configs."""
 from __future__ import annotations
 
 import argparse
@@ -8,7 +8,8 @@ from pathlib import Path
 CONFIGS = {
     "dense-only": {"dense"},
     "sparse-only": {"sparse"},
-    "hybrid+RRF": {"dense", "sparse", "exact"},
+    "dense+exact (default)": {"dense", "exact"},
+    "dense+sparse+exact": {"dense", "sparse", "exact"},
 }
 
 
@@ -45,10 +46,10 @@ def main() -> None:
     load_vec_extension(store.conn)
     searcher = HybridSearcher(store, _make_embedder())
 
-    print(f"{'config':<14}{'Recall@5':>10}{'Recall@10':>11}{'MRR':>8}")
+    print(f"{'config':<24}{'Recall@5':>10}{'Recall@10':>11}{'MRR':>8}")
     for name, chans in CONFIGS.items():
         m = evaluate(searcher, golden, chans)
-        print(f"{name:<14}{m['recall@5']:>10.2%}{m['recall@10']:>11.2%}"
+        print(f"{name:<24}{m['recall@5']:>10.2%}{m['recall@10']:>11.2%}"
               f"{m['mrr']:>8.3f}")
 
 

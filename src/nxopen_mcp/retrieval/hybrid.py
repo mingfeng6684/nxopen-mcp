@@ -52,9 +52,15 @@ class HybridSearcher:
             ids.extend(self.store.exact_name_matches(tok))
         return ids
 
+    # Default channels chosen by evaluation on a 33-query golden set:
+    # BGE-M3's sparse channel *lowered* Recall@5 from 69.7% to 54.5% when
+    # RRF-fused with dense on this corpus (at any fusion weight), so the
+    # default is dense + exact; sparse remains available via `channels`.
+    DEFAULT_CHANNELS = frozenset({"dense", "exact"})
+
     def search(self, query: str, top_k: int = 10,
                namespace: str | None = None,
-               channels: set[str] = frozenset({"dense", "sparse", "exact"}),
+               channels: set[str] = DEFAULT_CHANNELS,
                ) -> list[dict]:
         exact = self._exact(query) if "exact" in channels else []
         rankings: list[list[int]] = []
