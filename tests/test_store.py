@@ -50,3 +50,14 @@ def test_inheritance_chain(store):
 def test_exact_name_matches(store):
     ids = store.exact_name_matches("CavityMillingBuilder")
     assert len(ids) >= 1
+
+
+def test_reinsert_preserves_member_id(store):
+    before = store.conn.execute(
+        "SELECT id FROM members WHERE full_name = ?",
+        ["NXOpen.CAM.CavityMillingBuilder"]).fetchone()["id"]
+    store.insert_members(parse_doc_xml(FIXTURE))  # re-index same docs
+    after = store.conn.execute(
+        "SELECT id FROM members WHERE full_name = ?",
+        ["NXOpen.CAM.CavityMillingBuilder"]).fetchone()["id"]
+    assert after == before

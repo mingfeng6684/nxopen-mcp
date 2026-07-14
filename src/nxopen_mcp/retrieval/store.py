@@ -67,9 +67,15 @@ class Store:
              r.license, r.creator_cref, r.signature)
             for r in records
         ]
-        self.conn.executemany(
-            f"INSERT OR REPLACE INTO members({','.join(_COLS)}) "
-            f"VALUES({','.join('?' * len(_COLS))})", rows)
+        # Use ON CONFLICT DO UPDATE to preserve existing member IDs
+        # This prevents orphaning sparse_postings and dense vector references
+        placeholders = ','.join('?' * len(_COLS))
+        conflict_updates = ','.join(f"{col}=excluded.{col}" for col in _COLS[1:])
+        upsert_sql = (
+            f"INSERT INTO members({','.join(_COLS)}) VALUES({placeholders}) "
+            f"ON CONFLICT(full_name) DO UPDATE SET {conflict_updates}"
+        )
+        self.conn.executemany(upsert_sql, rows)
         self.conn.commit()
 
     def insert_inheritance(self, chains: Iterable[tuple[str, str, int]]) -> None:
