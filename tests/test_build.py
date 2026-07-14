@@ -25,3 +25,15 @@ def test_build_index_populates_all_tables(tmp_path):
     assert cnt == 3
     sp = store.conn.execute("SELECT count(*) c FROM sparse_postings").fetchone()["c"]
     assert sp > 0
+
+
+def test_rebuild_does_not_duplicate_postings(tmp_path):
+    db = tmp_path / "index.db"
+    build_index([FIXTURE], db, FakeEmbedder(), on_progress=lambda _: None)
+    store = Store(db)
+    first = store.conn.execute("SELECT count(*) c FROM sparse_postings").fetchone()["c"]
+    store.conn.close()
+    build_index([FIXTURE], db, FakeEmbedder(), on_progress=lambda _: None)
+    store = Store(db)
+    second = store.conn.execute("SELECT count(*) c FROM sparse_postings").fetchone()["c"]
+    assert second == first

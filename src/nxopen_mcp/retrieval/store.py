@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import sys
 from pathlib import Path
 from typing import Iterable
 
@@ -50,20 +51,21 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
     return d
 
 
-def _try_load_vec_extension(conn: sqlite3.Connection) -> None:
-    """Best-effort load of the sqlite-vec extension so dense_vec (a vec0
-    virtual table) is queryable from any Store connection. Extensions must
-    be loaded per-connection, so this runs on every Store() construction.
-    Degrades gracefully if sqlite-vec isn't installed or extension loading
-    isn't supported by this Python build.
+def load_vec_extension(conn: sqlite3.Connection) -> None:
+    """Load the sqlite-vec extension so dense_vec (a vec0 virtual table) is
+    queryable from any connection. Extensions must be loaded per-connection,
+    so this runs on every Store() construction. Degrades gracefully if
+    sqlite-vec isn't installed or extension loading isn't supported by this
+    Python build; on failure, prints a one-line warning to stderr.
     """
     try:
         import sqlite_vec
         conn.enable_load_extension(True)
         sqlite_vec.load(conn)
         conn.enable_load_extension(False)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"warning: could not load sqlite-vec extension: {e}",
+              file=sys.stderr)
 
 
 class Store:
@@ -72,7 +74,7 @@ class Store:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(str(self.db_path))
         self.conn.row_factory = sqlite3.Row
-        _try_load_vec_extension(self.conn)
+        load_vec_extension(self.conn)
 
     def create_schema(self) -> None:
         self.conn.executescript(_SCHEMA)

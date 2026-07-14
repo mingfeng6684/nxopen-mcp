@@ -5,24 +5,16 @@ import struct
 from pathlib import Path
 from typing import Callable
 
-import sqlite_vec
-
 from nxopen_mcp.indexer.embedder import Embedder, record_to_text
 from nxopen_mcp.indexer.inheritance import build_chains, extract_bases
 from nxopen_mcp.indexer.parser import parse_doc_xml
-from nxopen_mcp.retrieval.store import Store
+from nxopen_mcp.retrieval.store import Store, load_vec_extension  # noqa: F401  (re-exported for callers)
 
 _BATCH = 64
 
 
 def serialize_f32(vec) -> bytes:
     return struct.pack(f"{len(vec)}f", *vec)
-
-
-def load_vec_extension(conn) -> None:
-    conn.enable_load_extension(True)
-    sqlite_vec.load(conn)
-    conn.enable_load_extension(False)
 
 
 def find_doc_xmls(nx_path: Path) -> list[Path]:
@@ -42,7 +34,6 @@ def build_index(
     on_progress: Callable[[str], None] = print,
 ) -> int:
     store = Store(db_path)
-    load_vec_extension(store.conn)
     store.create_schema()
     store.conn.execute(
         f"CREATE VIRTUAL TABLE IF NOT EXISTS dense_vec USING vec0("
@@ -67,9 +58,12 @@ def build_index(
         dense, sparse = embedder.encode([record_to_text(r) for r in batch])
         for r, dvec, swts in zip(batch, dense, sparse):
             mid = id_by_name[r.full_name]
+            store.conn.execute("DELETE FROM dense_vec WHERE member_id = ?", [mid])
             store.conn.execute(
-                "INSERT OR REPLACE INTO dense_vec(member_id, embedding) VALUES(?,?)",
+                "INSERT INTO dense_vec(member_id, embedding) VALUES(?,?)",
                 [mid, serialize_f32(dvec)])
+            store.conn.execute(
+                "DELETE FROM sparse_postings WHERE member_id = ?", [mid])
             store.conn.executemany(
                 "INSERT INTO sparse_postings(token, member_id, weight) VALUES(?,?,?)",
                 [(tok, mid, w) for tok, w in swts.items()])
