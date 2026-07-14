@@ -1,0 +1,10 @@
+{"query": "how to create a cavity milling operation builder", "expected": "NXOpen.CAM.OperationCollection.CreateCavityMillingBuilder"}
+{"query": "建立型腔銑削操作的 builder", "expected": "NXOpen.CAM.OperationCollection.CreateCavityMillingBuilder"}
+{"query": "CavityMillingBuilder", "expected": "NXOpen.CAM.CavityMillingBuilder"}
+{"query": "毛坯幾何 blank geometry", "expected": "NXOpen.CAM.CavityMillingBuilder.BlankGeometry"}
+{"query": "open a part file", "expected": "NXOpen.PartCollection.Open"}
+{"query": "取得目前工作部件 work part", "expected": "NXOpen.Session.Parts"}
+{"query": "hole drilling builder", "expected": "NXOpen.CAM.OperationCollection.CreateHoleDrillingBuilder"}
+{"query": "刀具路徑生成 generate tool path", "expected": "NXOpen.CAM.CAMObject.GenerateToolPath"}
+{"query": "CAM setup 建立", "expected": "NXOpen.Part.CreateCamSetup"}
+{"query": "operation feed rate 進給率", "expected": "NXOpen.CAM.FeedsBuilder"}
