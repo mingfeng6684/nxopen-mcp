@@ -30,6 +30,11 @@ def _make_embedder():
 def index(
     nx_path: Path = typer.Option(..., help="NX install dir, e.g. D:\\Siemens\\NX12.0"),
     db: Path = typer.Option(DEFAULT_DB, help="Index output path"),
+    workers: int = typer.Option(
+        1, min=1,
+        help="Parallel embedding worker processes. Each worker loads its own "
+             "model copy; on an 8-core CPU, 3 workers give ~3x throughput. "
+             "Interrupted parallel builds resume where they left off."),
 ):
     """Build the local index from your own NX installation's doc XMLs."""
     from nxopen_mcp.indexer.build import build_index, find_doc_xmls
@@ -41,8 +46,14 @@ def index(
         raise typer.Exit(1)
     typer.echo(f"found: {', '.join(p.name for p in xmls)}")
     dlls = sorted(xmls[0].parent.glob("NXOpen*.dll")) or None
-    n = build_index(xmls, db, _make_embedder(), dll_paths=dlls,
-                    on_progress=typer.echo)
+    if workers > 1:
+        # Workers each build their own embedder from the (picklable)
+        # module-level factory, so the parent never loads the model.
+        n = build_index(xmls, db, dll_paths=dlls, on_progress=typer.echo,
+                        workers=workers, embedder_factory=_make_embedder)
+    else:
+        n = build_index(xmls, db, _make_embedder(), dll_paths=dlls,
+                        on_progress=typer.echo)
     typer.echo(f"done: indexed {n} members -> {db}")
 
 

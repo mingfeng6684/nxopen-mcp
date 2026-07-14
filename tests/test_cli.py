@@ -25,6 +25,21 @@ def test_index_with_fake_embedder(tmp_path, monkeypatch):
     assert db.exists()
 
 
+def test_index_with_workers_option(tmp_path, monkeypatch):
+    monkeypatch.setenv("NXOPEN_MCP_FAKE_EMBEDDER", "1")
+    (tmp_path / "NXOpen.xml").write_bytes(
+        (FIXTURE_DIR / "sample_doc.xml").read_bytes())
+    db = tmp_path / "index.db"
+    result = runner.invoke(
+        app, ["index", "--nx-path", str(tmp_path), "--db", str(db),
+              "--workers", "2"])
+    assert result.exit_code == 0, result.output
+    from nxopen_mcp.retrieval.store import Store
+    store = Store(db)
+    cnt = store.conn.execute("SELECT count(*) c FROM dense_vec").fetchone()["c"]
+    assert cnt == 3
+
+
 def test_serve_without_index_gives_guidance(tmp_path):
     result = runner.invoke(app, ["serve", "--db", str(tmp_path / "nope.db")])
     assert result.exit_code == 1
