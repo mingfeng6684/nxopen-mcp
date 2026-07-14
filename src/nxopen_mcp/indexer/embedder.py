@@ -1,0 +1,51 @@
+"""Embedding: chunk text composition + BGE-M3 (dense + sparse) wrapper."""
+from __future__ import annotations
+
+from typing import Protocol
+
+import numpy as np
+
+from nxopen_mcp.indexer.parser import MemberRecord
+
+_KIND_LABEL = {"T": "class", "P": "property", "M": "method",
+               "F": "field", "E": "event"}
+
+
+def record_to_text(r: MemberRecord) -> str:
+    """One member = one chunk. API docs are naturally structured."""
+    parts = [r.full_name, _KIND_LABEL.get(r.kind, r.kind), r.summary]
+    for pname, pdesc in r.params:
+        parts.append(f"{pname}: {pdesc}")
+    if r.returns:
+        parts.append(f"returns: {r.returns}")
+    return " | ".join(p for p in parts if p)
+
+
+class Embedder(Protocol):
+    dim: int
+
+    def encode(self, texts: list[str]) -> tuple[np.ndarray, list[dict[str, float]]]:
+        """Return (L2-normalized dense matrix (n, dim), per-text sparse weights)."""
+        ...
+
+
+class BGEM3Embedder:
+    """Real embedder. Heavy import is deferred so CI never touches it."""
+
+    dim = 1024
+
+    def __init__(self) -> None:
+        from FlagEmbedding import BGEM3FlagModel  # lazy: pulls torch
+        self._model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=True)
+
+    def encode(self, texts: list[str]) -> tuple[np.ndarray, list[dict[str, float]]]:
+        out = self._model.encode(
+            texts, return_dense=True, return_sparse=True, batch_size=32)
+        dense = np.asarray(out["dense_vecs"], dtype=np.float32)
+        norms = np.linalg.norm(dense, axis=1, keepdims=True)
+        dense = dense / np.where(norms == 0, 1.0, norms)
+        sparse = [
+            {tok: float(w) for tok, w in d.items()}
+            for d in out["lexical_weights"]
+        ]
+        return dense, sparse
