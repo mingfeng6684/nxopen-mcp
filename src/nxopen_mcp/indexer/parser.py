@@ -47,6 +47,9 @@ def parse_doc_xml(path: Path) -> Iterator[MemberRecord]:
         if "(" in body:
             body, sig = body.split("(", 1)
             signature = sig.rstrip(")")
+        if "." not in body:
+            elem.clear()
+            continue
         if kind == "T":
             namespace, name = body.rsplit(".", 1)
             parent_type = None

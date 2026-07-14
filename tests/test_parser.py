@@ -35,3 +35,14 @@ def test_parses_method_with_params_and_signature():
     assert r.params == [("param", "operation to be edited")]
     assert "operation builder created" in r.returns
     assert r.license == 'cam_base ("CAM BASE")'
+
+
+def test_skips_malformed_member_names(tmp_path):
+    xml = tmp_path / "bad.xml"
+    xml.write_text(
+        "<doc><members>"
+        '<member name="T:Dotless"><summary>bad</summary></member>'
+        '<member name="T:NXOpen.Session"><summary>ok</summary></member>'
+        "</members></doc>")
+    records = list(parse_doc_xml(xml))
+    assert [r.full_name for r in records] == ["NXOpen.Session"]
