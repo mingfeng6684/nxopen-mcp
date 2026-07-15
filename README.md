@@ -263,8 +263,9 @@ teammates can skip the hours-long build:
    and pass `--db <path>` to `serve`).
 3. Register the server: `claude mcp add -s user nxopen -- nxopen-mcp serve`
 
-A full step-by-step onboarding guide (with troubleshooting) is available
-in Traditional Chinese: [docs/setup-prebuilt-index.zh-TW.md](docs/setup-prebuilt-index.zh-TW.md).
+A full step-by-step onboarding guide (with troubleshooting):
+[docs/setup-prebuilt-index.md](docs/setup-prebuilt-index.md)
+([繁體中文版](docs/setup-prebuilt-index.zh-TW.md)).
 
 The BGE-M3 model (~2 GB) still downloads on the first *semantic* query —
 it encodes the query text, independent of the index. Exact lookups

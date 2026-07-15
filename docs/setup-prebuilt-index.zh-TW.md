@@ -1,5 +1,7 @@
 # 使用現成索引串接 nxopen-mcp 完整指南
 
+[English](setup-prebuilt-index.md) | **繁體中文**
+
 > 適用情境:你拿到了一份同事建好的 `index.db`(約 500 MB),想在自己的
 > 電腦上讓 Claude Code / Codex / Cursor 查詢 NXOpen API,**不需要**自己
 > 花數小時建索引。

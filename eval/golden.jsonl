@@ -31,3 +31,43 @@
 {"query": "怎麼開啟既有的 prt 檔案", "expected": "NXOpen.PartCollection.Open"}
 {"query": "MillGeomBuilder 的用途", "expected": "NXOpen.CAM.MillGeomBuilder"}
 {"query": "如何後處理成 G code", "expected": "NXOpen.CAM.CAMSetup.Postprocess"}
+{"query": "how to create an extrude feature 拉伸特徵", "expected": "NXOpen.Features.FeatureCollection.CreateExtrudeBuilder"}
+{"query": "ExtrudeBuilder", "expected": "NXOpen.Features.ExtrudeBuilder"}
+{"query": "建立草圖 create sketch in place", "expected": "NXOpen.SketchCollection.CreateSketchInPlaceBuilder2"}
+{"query": "add a component to the assembly 加入組件", "expected": "NXOpen.Assemblies.ComponentAssembly.AddComponent"}
+{"query": "create a drawing sheet 建立圖紙頁", "expected": "NXOpen.Drawings.DrawingSheetCollection.DrawingSheetBuilder"}
+{"query": "create base view on drawing 基本視圖", "expected": "NXOpen.Drawings.DraftingViewCollection.CreateBaseViewBuilder"}
+{"query": "create an expression with units 建立表達式", "expected": "NXOpen.ExpressionCollection.CreateWithUnits"}
+{"query": "UF delete an object", "expected": "NXOpen.UF.UFObj.DeleteObject"}
+{"query": "UF cycle objects in part by type", "expected": "NXOpen.UF.UFObj.CycleObjsInPart"}
+{"query": "show a block styler dialog 顯示對話框", "expected": "NXOpen.BlockStyler.BlockDialog.Show"}
+{"query": "HolePackageBuilder", "expected": "NXOpen.Features.HolePackageBuilder"}
+{"query": "create hole feature 建立孔特徵", "expected": "NXOpen.Features.FeatureCollection.CreateHolePackageBuilder"}
+{"query": "set an undo mark 復原標記", "expected": "NXOpen.Session.SetUndoMark"}
+{"query": "write to the listing window 資訊視窗輸出", "expected": "NXOpen.ListingWindow.WriteLine"}
+{"query": "save the part 儲存零件", "expected": "NXOpen.BasePart.Save"}
+{"query": "close a part 關閉零件", "expected": "NXOpen.BasePart.Close"}
+{"query": "edge blend 邊圓角", "expected": "NXOpen.Features.FeatureCollection.CreateEdgeBlendBuilder"}
+{"query": "EdgeBlendBuilder", "expected": "NXOpen.Features.EdgeBlendBuilder"}
+{"query": "chamfer feature 倒角", "expected": "NXOpen.Features.ChamferBuilder"}
+{"query": "create a block primitive 方塊", "expected": "NXOpen.Features.BlockFeatureBuilder"}
+{"query": "cylinder feature 圓柱", "expected": "NXOpen.Features.CylinderBuilder"}
+{"query": "move object 移動物件", "expected": "NXOpen.Features.MoveObjectBuilder"}
+{"query": "pattern feature 特徵陣列", "expected": "NXOpen.Features.PatternFeatureBuilder"}
+{"query": "create a line curve 建立直線", "expected": "NXOpen.CurveCollection.CreateLine"}
+{"query": "create an arc 建立圓弧", "expected": "NXOpen.CurveCollection.CreateArc"}
+{"query": "show a message box 訊息框", "expected": "NXOpen.NXMessageBox.Show"}
+{"query": "UF ask double parameter value", "expected": "NXOpen.UF.UFParam.AskDoubleValue"}
+{"query": "create a PMI note annotation 建立 PMI 註解", "expected": "NXOpen.Annotations.NoteCollection.CreatePmiNote"}
+{"query": "set layer state 圖層狀態", "expected": "NXOpen.Layer.LayerManager.SetState"}
+{"query": "set user attribute on object 設定屬性", "expected": "NXOpen.NXObject.SetUserAttribute"}
+{"query": "datum plane builder 基準面", "expected": "NXOpen.Features.DatumPlaneBuilder"}
+{"query": "boolean unite two bodies 布林合併", "expected": "NXOpen.Features.BooleanBuilder"}
+{"query": "update session after changes 更新", "expected": "NXOpen.Update.DoUpdate"}
+{"query": "get the work part 目前工作零件", "expected": "NXOpen.PartCollection.Work"}
+{"query": "SketchCollection", "expected": "NXOpen.SketchCollection"}
+{"query": "measure distance between objects 量測距離", "expected": "NXOpen.MeasureManager.NewDistance"}
+{"query": "UF set view scale on drawing", "expected": "NXOpen.UF.UFDraw.SetViewScale"}
+{"query": "mirror feature 鏡射特徵", "expected": "NXOpen.Features.MirrorBuilder"}
+{"query": "revolve feature 旋轉特徵", "expected": "NXOpen.Features.RevolveBuilder"}
+{"query": "select objects with dialog 選取物件", "expected": "NXOpen.UF.UFUi.SelectWithSingleDialog"}
