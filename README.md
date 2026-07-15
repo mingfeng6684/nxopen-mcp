@@ -32,8 +32,8 @@ repo or sent anywhere.
 Requires **Python 3.11+**.
 
 ```bash
-# 1. Install (from GitHub until the PyPI release lands)
-pip install "nxopen-mcp[embed,reflect] @ git+https://github.com/mingfeng6684/nxopen-mcp.git"
+# 1. Install from PyPI
+pip install "nxopen-mcp[embed,reflect]"
 
 # 2. Build the index from YOUR NX installation (one-time — see time note below)
 nxopen-mcp index --nx-path "D:\Siemens\NX12.0"

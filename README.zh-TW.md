@@ -29,8 +29,8 @@ LLM 會幻覺 NXOpen API:這是一個冷門領域(Siemens NX CAM/CAD 自動化),
 需要 **Python 3.11+**。
 
 ```bash
-# 1. 安裝(PyPI 版發佈前先從 GitHub 裝)
-pip install "nxopen-mcp[embed,reflect] @ git+https://github.com/mingfeng6684/nxopen-mcp.git"
+# 1. 從 PyPI 安裝
+pip install "nxopen-mcp[embed,reflect]"
 
 # 2. 用「你的」NX 安裝建索引(一次性——耗時說明見下)
 nxopen-mcp index --nx-path "D:\Siemens\NX12.0"
