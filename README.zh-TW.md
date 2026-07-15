@@ -211,6 +211,8 @@ Recall@5 從 69.7% 掉到 54.5%,權重掃描(w_sparse ∈ {0.5, 0.3, 0.15})
    `--db <路徑>`)。
 3. 註冊 server:`claude mcp add -s user nxopen -- nxopen-mcp serve`
 
+完整的從零串接教學(含疑難排解):[使用現成索引串接指南](docs/setup-prebuilt-index.zh-TW.md)。
+
 BGE-M3 模型(約 2 GB)在第一次*語意*查詢時仍會下載——它負責編碼查詢
 文字,與索引無關。精確查詢(`get_class` / `get_member`)永遠不需要
 模型。
