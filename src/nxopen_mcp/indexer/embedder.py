@@ -1,6 +1,7 @@
 """Embedding: chunk text composition + BGE-M3 (dense + sparse) wrapper."""
 from __future__ import annotations
 
+import threading
 from typing import Protocol
 
 import numpy as np
@@ -42,10 +43,21 @@ class LazyEmbedder:
     def __init__(self, factory) -> None:
         self._factory = factory
         self._real: Embedder | None = None
+        self._lock = threading.Lock()
+
+    def _ensure_loaded(self) -> None:
+        with self._lock:
+            if self._real is None:
+                self._real = self._factory()
+
+    def start_preload(self) -> None:
+        """Warm the model in a background thread (serve --preload):
+        the MCP handshake still answers instantly, but by the time the
+        first semantic query arrives the model is usually ready."""
+        threading.Thread(target=self._ensure_loaded, daemon=True).start()
 
     def encode(self, texts: list[str]) -> tuple[np.ndarray, list[dict[str, float]]]:
-        if self._real is None:
-            self._real = self._factory()
+        self._ensure_loaded()
         return self._real.encode(texts)
 
 

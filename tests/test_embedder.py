@@ -34,3 +34,29 @@ def test_lazy_embedder_defers_factory_until_encode():
     assert lazy.encode(["x"]) == ("dense", "sparse")
     lazy.encode(["y"])
     assert calls == [1]           # factory called exactly once
+
+
+def test_lazy_embedder_preload_loads_in_background():
+    import time
+    from nxopen_mcp.indexer.embedder import LazyEmbedder
+    calls = []
+
+    class Fake:
+        dim = 8
+
+        def encode(self, texts):
+            return "d", "s"
+
+    def factory():
+        calls.append(1)
+        return Fake()
+
+    lazy = LazyEmbedder(factory)
+    lazy.start_preload()
+    for _ in range(50):  # wait for the background thread
+        if calls:
+            break
+        time.sleep(0.05)
+    assert calls == [1]
+    assert lazy.encode(["x"]) == ("d", "s")
+    assert calls == [1]  # not loaded twice

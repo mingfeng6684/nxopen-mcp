@@ -58,7 +58,13 @@ def index(
 
 
 @app.command()
-def serve(db: Path = typer.Option(DEFAULT_DB, help="Index path")):
+def serve(
+    db: Path = typer.Option(DEFAULT_DB, help="Index path"),
+    preload: bool = typer.Option(
+        False, "--preload",
+        help="Warm the embedding model in the background at startup so the "
+             "first semantic query doesn't pay the load time"),
+):
     """Start the MCP server (stdio). Requires a built index."""
     if not db.exists():
         typer.echo(f"error: index not found at {db}\n"
@@ -82,7 +88,10 @@ def serve(db: Path = typer.Option(DEFAULT_DB, help="Index path")):
     load_vec_extension(store.conn)
     # Lazy: the MCP handshake answers instantly; BGE-M3 loads on the
     # first semantic query (exact lookups never need it).
-    server = create_server(store, HybridSearcher(store, LazyEmbedder(_make_embedder)))
+    embedder = LazyEmbedder(_make_embedder)
+    if preload:
+        embedder.start_preload()
+    server = create_server(store, HybridSearcher(store, embedder))
     server.run()  # stdio transport
 
 
