@@ -1,5 +1,7 @@
 # nxopen-mcp
 
+**English** | [繁體中文](README.zh-TW.md)
+
 MCP server that gives AI coding agents (Claude Code, Codex, Cursor)
 accurate knowledge of the Siemens NXOpen .NET API — eliminating
 hallucinated API calls via hybrid retrieval over your own NX installation's
@@ -190,11 +192,11 @@ available via the `channels` parameter of `search()`.
 
 ![Claude Code querying the real NXOpen API through nxopen-mcp](docs/demo.gif)
 
-A real session: Claude Code answers "幫我寫一個設定主軸轉速的 NXOpen 程式"
-by calling `search_api` (Chinese/English semantic search) and `get_class`
-(members + inheritance chain), then writes code in which every member —
-`FeedsBuilder`, `SpindleRpmToggle`, `SpindleRpmBuilder.Value` — exists in
-the real API, with NX version info to prove it.
+A real session: asked to write NXOpen code that sets the spindle speed,
+Claude Code calls `search_api` (semantic search, English or Chinese) and
+`get_class` (members + inheritance chain), then writes code in which every
+member — `FeedsBuilder`, `SpindleRpmToggle`, `SpindleRpmBuilder.Value` —
+exists in the real API, with NX version info to prove it.
 
 ## Sharing a pre-built index
 
