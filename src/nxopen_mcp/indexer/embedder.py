@@ -29,6 +29,26 @@ class Embedder(Protocol):
         ...
 
 
+class LazyEmbedder:
+    """Defers constructing the real embedder until the first encode().
+
+    `serve` must answer the MCP initialize handshake within the client's
+    startup timeout (~30s); loading BGE-M3 takes minutes on CPU. Exact
+    lookups (get_class / get_member) never touch the model at all.
+    """
+
+    dim = 1024
+
+    def __init__(self, factory) -> None:
+        self._factory = factory
+        self._real: Embedder | None = None
+
+    def encode(self, texts: list[str]) -> tuple[np.ndarray, list[dict[str, float]]]:
+        if self._real is None:
+            self._real = self._factory()
+        return self._real.encode(texts)
+
+
 class BGEM3Embedder:
     """Real embedder. Heavy import is deferred so CI never touches it."""
 

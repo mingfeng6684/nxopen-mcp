@@ -70,9 +70,13 @@ def serve(db: Path = typer.Option(DEFAULT_DB, help="Index path")):
     from nxopen_mcp.retrieval.store import Store
     from nxopen_mcp.server import create_server
 
+    from nxopen_mcp.indexer.embedder import LazyEmbedder
+
     store = Store(db)
     load_vec_extension(store.conn)
-    server = create_server(store, HybridSearcher(store, _make_embedder()))
+    # Lazy: the MCP handshake answers instantly; BGE-M3 loads on the
+    # first semantic query (exact lookups never need it).
+    server = create_server(store, HybridSearcher(store, LazyEmbedder(_make_embedder)))
     server.run()  # stdio transport
 
 
