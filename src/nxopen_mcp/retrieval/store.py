@@ -106,10 +106,13 @@ class Store:
     def _find_one(self, name: str, kind: str | None = None) -> sqlite3.Row | None:
         kind_sql = " AND kind = ?" if kind else ""
         kp = [kind] if kind else []
+        # Deterministic tie-breaks: shortest full_name first, then
+        # alphabetical — a partial-name lookup always returns the same row.
+        order = " ORDER BY length(full_name), full_name LIMIT 1"
         for sql, p in [
             (f"SELECT * FROM members WHERE full_name = ?{kind_sql}", [name, *kp]),
-            (f"SELECT * FROM members WHERE name = ?{kind_sql} LIMIT 1", [name, *kp]),
-            (f"SELECT * FROM members WHERE full_name LIKE ?{kind_sql} LIMIT 1",
+            (f"SELECT * FROM members WHERE name = ?{kind_sql}{order}", [name, *kp]),
+            (f"SELECT * FROM members WHERE full_name LIKE ?{kind_sql}{order}",
              [f"%{name}%", *kp]),
         ]:
             if row := self.conn.execute(sql, p).fetchone():

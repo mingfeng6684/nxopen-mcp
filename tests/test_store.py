@@ -79,3 +79,19 @@ def test_exact_name_matches_prefers_type_and_short_names(store):
     first = store.get_members_by_ids(ids[:1])[0]
     assert first["kind"] == "T"  # the class outranks same-named properties
     assert len(ids) <= 3
+
+
+def test_find_one_partial_match_is_deterministic(store):
+    from nxopen_mcp.indexer.parser import MemberRecord
+    store.insert_members([
+        MemberRecord(
+            full_name="NXOpen.CAM.ZLevelBuilder.CutLevel", kind="P",
+            namespace="NXOpen.CAM", parent_type="NXOpen.CAM.ZLevelBuilder",
+            name="CutLevel", summary="z-level cut level"),
+        MemberRecord(
+            full_name="NXOpen.CAM.CutLevel", kind="T",
+            namespace="NXOpen.CAM", parent_type=None,
+            name="CutLevel", summary="cut level class"),
+    ])
+    for _ in range(3):  # same answer every time: shortest full_name wins
+        assert store.get_member("CutLevel")["full_name"] == "NXOpen.CAM.CutLevel"
