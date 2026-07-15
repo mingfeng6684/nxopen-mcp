@@ -156,6 +156,26 @@ python eval/run_eval.py --db ~/.nxopen-mcp/index.db
 | **dense+exact (default)** | **69.70%** | **78.79%** | **0.551** |
 | dense+sparse+exact | 54.55% | 60.61% | 0.468 |
 
+### With vs. without the tool: hallucination test
+
+Same model (Claude Haiku), same 33 questions, one variable — whether the
+nxopen-mcp tools are available. Answers were graded against the golden
+set; "hallucinated" means the proposed member does not exist anywhere in
+the real 97,913-member index:
+
+| metric | closed-book (no tool) | with nxopen-mcp |
+|---|:---:|:---:|
+| exactly correct | 13/33 (39.4%) | **31/33 (93.9%)** |
+| wrong but real API | 13/33 (39.4%) | 2/33 (6.1%) |
+| **hallucinated (API does not exist)** | **7/33 (21.2%)** | **0/33 (0%)** |
+| time to answer all 33 | 84 s | 321 s (44 tool calls) |
+
+The closed-book hallucinations are the dangerous kind — plausible names
+like `NXOpen.CAM.MillGeometryBuilder` (real name: `MillGeomBuilder`) or
+`NXOpen.Session.Parts.Open` (real: `NXOpen.PartCollection.Open`) that
+read fine and fail at compile time. Tool-assisted answering costs ~7 s
+per question and eliminated hallucinations entirely.
+
 **Evaluation-driven default.** The original design fused dense, sparse
 and exact-name channels with uniform RRF. Measurement showed BGE-M3's
 sparse channel *hurt* on this corpus: fusing it dragged Recall@5 from
