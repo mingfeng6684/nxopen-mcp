@@ -26,24 +26,43 @@ LLM 會幻覺 NXOpen API:這是一個冷門領域(Siemens NX CAM/CAD 自動化),
 
 ## 快速開始
 
+需要 **Python 3.11+**。
+
 ```bash
-# 1. 用「你的」NX 安裝建索引(一次性)
-pip install "nxopen-mcp[embed]"
+# 1. 安裝(PyPI 版發佈前先從 GitHub 裝)
+pip install "nxopen-mcp[embed,reflect] @ git+https://github.com/mingfeng6684/nxopen-mcp.git"
+
+# 2. 用「你的」NX 安裝建索引(一次性——耗時說明見下)
 nxopen-mcp index --nx-path "D:\Siemens\NX12.0"
 
-# 2. 註冊到 Claude Code
-claude mcp add nxopen -- nxopen-mcp serve
+# 3. 註冊到 Claude Code(user scope:所有專案皆可用)
+claude mcp add -s user nxopen -- nxopen-mcp serve
 
-# 3. 請 Claude Code 寫 NXOpen 程式——它現在查的是真實 API。
+# 4. 請 Claude Code 寫 NXOpen 程式——它現在查的是真實 API。
 ```
 
 `index` 會在 `<nx-path>\UGII\managed`(找不到則退回 `<nx-path>` 本身)
-尋找 `NXOpen*.xml` 文件檔,並在同目錄尋找 `NXOpen*.dll` 組件。`[embed]`
-extra 會安裝 `FlagEmbedding`,首次執行時下載 BGE-M3 模型(約 2GB)。
-沒有它,`index` 和 `serve` 無法產生或查詢真實嵌入。
+尋找 `NXOpen*.xml` 文件檔,並在同目錄尋找 `NXOpen*.dll` 組件。
+
+Extras 說明:`[embed]` 安裝 `FlagEmbedding`(首次使用時下載約 2GB 的
+BGE-M3 模型)——建索引與語意搜尋必需。`[reflect]` 安裝 `pythonnet`,
+讓 `get_class` 能顯示繼承成員;不裝也能建索引,只是沒有繼承鏈。
+
+**建索引要多久?** 誠實數字:完整 NX 12 文件約 10 萬個成員,8 核筆電
+純 CPU 嵌入需要**數小時**(瓶頸在記憶體頻寬——`--workers N` 主要在
+記憶體通道較多的機器上有效;有 CUDA GPU 會快很多)。建議掛著過夜跑,
+或直接複製同事建好的索引(見[共用建好的索引](#共用建好的索引))。
+
+**第一次語意查詢慢是設計使然。** `serve` 秒啟動、`get_class` /
+`get_member` 立即回應,但第一次呼叫 `search_api` / `find_builder`
+要載入 BGE-M3 模型(約 1–2 分鐘),之後語意查詢只需數秒。若 MCP
+用戶端顯示第一次搜尋「卡住」,那是一次性的模型載入——等它跑完即可。
 
 索引預設寫到 `~/.nxopen-mcp/index.db`;`index` 和 `serve` 都可用
 `--db <路徑>` 覆寫。
+
+若 `nxopen-mcp` 不在 PATH 上(例如裝在 venv 裡),以下指令與設定請改用
+執行檔完整路徑(Windows:`<venv>\Scripts\nxopen-mcp.exe`)。
 
 ### `.mcp.json`(Claude Code / 其他支援 MCP 的用戶端)
 

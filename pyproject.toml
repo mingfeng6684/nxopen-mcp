@@ -2,6 +2,17 @@
 name = "nxopen-mcp"
 version = "0.1.0"
 description = "MCP server that gives AI coding agents accurate NXOpen .NET API knowledge via hybrid retrieval"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["mcp", "nxopen", "siemens-nx", "rag", "llm", "cam"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
 requires-python = ">=3.11"
 dependencies = [
     "mcp>=1.2",
@@ -14,6 +25,10 @@ dependencies = [
 embed = ["FlagEmbedding>=1.3"]
 reflect = ["pythonnet>=3.0"]
 dev = ["pytest>=8.0"]
+
+[project.urls]
+Repository = "https://github.com/mingfeng6684/nxopen-mcp"
+Issues = "https://github.com/mingfeng6684/nxopen-mcp/issues"
 
 [project.scripts]
 nxopen-mcp = "nxopen_mcp.cli:app"

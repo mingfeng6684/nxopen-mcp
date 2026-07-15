@@ -29,25 +29,50 @@ repo or sent anywhere.
 
 ## Quick start
 
+Requires **Python 3.11+**.
+
 ```bash
-# 1. Build the index from YOUR NX installation (one-time, several minutes)
-pip install "nxopen-mcp[embed]"
+# 1. Install (from GitHub until the PyPI release lands)
+pip install "nxopen-mcp[embed,reflect] @ git+https://github.com/mingfeng6684/nxopen-mcp.git"
+
+# 2. Build the index from YOUR NX installation (one-time — see time note below)
 nxopen-mcp index --nx-path "D:\Siemens\NX12.0"
 
-# 2. Register with Claude Code
-claude mcp add nxopen -- nxopen-mcp serve
+# 3. Register with Claude Code (user scope: available in every project)
+claude mcp add -s user nxopen -- nxopen-mcp serve
 
-# 3. Ask Claude Code to write NXOpen code — it now queries real APIs.
+# 4. Ask Claude Code to write NXOpen code — it now queries real APIs.
 ```
 
 `index` looks for `NXOpen*.xml` doc files under `<nx-path>\UGII\managed`
 (falling back to `<nx-path>` itself), and for `NXOpen*.dll` assemblies in
-the same folder. The `[embed]` extra pulls in `FlagEmbedding`, which
-downloads the BGE-M3 model (~2GB) on first run. Without it, `index` and
-`serve` cannot produce or query real embeddings.
+the same folder.
+
+Extras: `[embed]` pulls in `FlagEmbedding` (downloads the ~2GB BGE-M3
+model on first use) — required for indexing and semantic search.
+`[reflect]` pulls in `pythonnet` so `get_class` can show inherited
+members; skip it and indexing still works, just without inheritance
+chains.
+
+**How long does indexing take?** Honest numbers: a full NX 12 doc set is
+~100k members; on an 8-core laptop CPU that's **several hours** of
+embedding (memory-bandwidth-bound — `--workers N` helps mainly on
+machines with more memory channels; a CUDA GPU helps a lot). Plan to run
+it overnight, or copy a teammate's index (see
+[Sharing a pre-built index](#sharing-a-pre-built-index)).
+
+**First semantic query is slow by design.** `serve` starts instantly, and
+`get_class` / `get_member` respond immediately, but the first
+`search_api` / `find_builder` call loads the BGE-M3 model (~1–2 min).
+After that, semantic queries take seconds. If your MCP client shows the
+first search "hanging", it's the one-time model load — let it finish.
 
 By default the index is written to `~/.nxopen-mcp/index.db`; override with
 `--db <path>` on both `index` and `serve`.
+
+If `nxopen-mcp` isn't on your PATH (e.g. installed into a venv), use the
+full path to the executable (Windows: `<venv>\Scripts\nxopen-mcp.exe`)
+in the commands and configs below.
 
 ### `.mcp.json` (Claude Code / other MCP-aware clients)
 
