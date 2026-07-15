@@ -99,13 +99,41 @@ If you built the index at a non-default path, pass it explicitly:
 }
 ```
 
-### Codex / Cursor
+### Codex
 
-Both tools support stdio MCP servers via a similar config block (Codex's
-`~/.codex/config.toml` `[mcp_servers.nxopen]` table, or Cursor's
-`mcp.json`). Point `command` at `nxopen-mcp` and `args` at `["serve"]`
-(plus `--db` if needed) the same way as above — consult your tool's MCP
-docs for the exact config file location and syntax.
+Codex CLI reads MCP servers from `~/.codex/config.toml`
+(Windows: `C:\Users\<you>\.codex\config.toml`; create the file if it
+doesn't exist). Add:
+
+```toml
+[mcp_servers.nxopen]
+command = "nxopen-mcp"
+args = ["serve"]
+```
+
+If `nxopen-mcp` isn't on PATH, use the full executable path (double the
+backslashes on Windows):
+
+```toml
+[mcp_servers.nxopen]
+command = "D:\\path\\to\\venv\\Scripts\\nxopen-mcp.exe"
+args = ["serve", "--db", "D:\\path\\to\\index.db"]
+```
+
+Alternatively, one CLI command does the same thing:
+
+```bash
+codex mcp add nxopen -- nxopen-mcp serve
+```
+
+Restart Codex, then verify with `codex mcp list` (or just ask it to look
+up an NXOpen class — you'll see the `nxopen` tool calls). Note the same
+first-semantic-query model load (~1–2 min) applies here.
+
+### Cursor
+
+Add the same JSON block as `.mcp.json` above to Cursor's MCP settings
+(project `.cursor/mcp.json`, or global via Settings → MCP).
 
 ## Tools
 

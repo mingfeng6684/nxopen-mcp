@@ -89,13 +89,41 @@ BGE-M3 模型)——建索引與語意搜尋必需。`[reflect]` 安裝 `pythonn
 }
 ```
 
-### Codex / Cursor
+### Codex
 
-兩者都以類似的設定區塊支援 stdio MCP server(Codex 的
-`~/.codex/config.toml` 中 `[mcp_servers.nxopen]` 表,或 Cursor 的
-`mcp.json`)。同樣把 `command` 指向 `nxopen-mcp`、`args` 設為
-`["serve"]`(必要時加 `--db`)——設定檔的確切位置與語法請查閱各工具的
-MCP 文件。
+Codex CLI 從 `~/.codex/config.toml` 讀取 MCP server 設定
+(Windows:`C:\Users\<你的帳號>\.codex\config.toml`,檔案不存在就
+自己建立)。加入:
+
+```toml
+[mcp_servers.nxopen]
+command = "nxopen-mcp"
+args = ["serve"]
+```
+
+若 `nxopen-mcp` 不在 PATH,改用執行檔完整路徑(Windows 反斜線要寫
+兩個):
+
+```toml
+[mcp_servers.nxopen]
+command = "D:\\path\\to\\venv\\Scripts\\nxopen-mcp.exe"
+args = ["serve", "--db", "D:\\path\\to\\index.db"]
+```
+
+也可以用一行 CLI 指令完成同樣的事:
+
+```bash
+codex mcp add nxopen -- nxopen-mcp serve
+```
+
+重啟 Codex 後用 `codex mcp list` 驗證(或直接請它查一個 NXOpen
+類別——看到 `nxopen` 的工具呼叫即成功)。第一次語意查詢同樣需要
+載入模型(約 1–2 分鐘)。
+
+### Cursor
+
+把上方 `.mcp.json` 的相同 JSON 區塊加進 Cursor 的 MCP 設定
+(專案的 `.cursor/mcp.json`,或 Settings → MCP 全域設定)。
 
 ## 工具
 
