@@ -171,6 +171,27 @@ available via the `channels` parameter of `search()`.
 > **Placeholder.** A demo GIF showing an agent using `search_api` /
 > `find_builder` to write correct NXOpen code will go here.
 
+## Sharing a pre-built index
+
+The index is a single SQLite file (~500 MB for a full NX 12 doc set), so
+teammates can skip the hours-long build:
+
+1. Install nxopen-mcp (the `[reflect]` extra is not needed — inheritance
+   chains are already baked into the index).
+2. Copy the index file to `~/.nxopen-mcp/index.db` (or keep it elsewhere
+   and pass `--db <path>` to `serve`).
+3. Register the server: `claude mcp add -s user nxopen -- nxopen-mcp serve`
+
+The BGE-M3 model (~2 GB) still downloads on the first *semantic* query —
+it encodes the query text, independent of the index. Exact lookups
+(`get_class` / `get_member`) never need the model.
+
+**Licensing boundary:** the index embeds text from Siemens' API
+documentation. Sharing it **within an organization whose seats are
+licensed for NX** is reasonable; do **not** redistribute index files
+publicly — anyone outside your license should build their own with
+`nxopen-mcp index`.
+
 ## License & IP
 
 Code: MIT (see [LICENSE](LICENSE)). This repository contains **no**
