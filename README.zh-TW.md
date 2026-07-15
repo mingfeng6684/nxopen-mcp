@@ -14,10 +14,9 @@ LLM 會幻覺 NXOpen API:這是一個冷門領域(Siemens NX CAM/CAD 自動化),
 
 - **語意搜尋**(BGE-M3 dense + sparse 嵌入)——中英文自然語言查詢,
   不知道確切名稱也能找到正確 API。
-- **精確名稱查詢**——字面的類別/成員名稱(如 `CavityMillingBuilder`)
-  精確比對,而非近似匹配。
-- **精確名稱通道**:查詢中的 CamelCase token 直接查表並置頂
-  (型別優先)。
+- **精確名稱通道**:查詢中的字面 CamelCase 名稱(如
+  `CavityMillingBuilder`)直接查表並置頂(型別優先),絕不交給
+  近似匹配。
 - **RRF 融合**可用於合併多通道——但評估結果讓 dense + exact 成為預設
   (見[評估](#評估))。
 
@@ -29,7 +28,7 @@ LLM 會幻覺 NXOpen API:這是一個冷門領域(Siemens NX CAM/CAD 自動化),
 需要 **Python 3.11+**。
 
 ```bash
-# 1. 從 PyPI 安裝
+# 1. 從 PyPI 安裝(或免安裝直接跑:uvx nxopen-mcp)
 pip install "nxopen-mcp[embed,reflect]"
 
 # 2. 用「你的」NX 安裝建索引(一次性——耗時說明見下)
@@ -140,8 +139,9 @@ NXOpen*.xml / *.dll  (你的 NX 安裝)
 - **一成員一 chunk。** 每個索引單位是單一 API 成員(型別、屬性、方法、
   欄位或事件),而非任意文字視窗——檢索結果 1:1 對應到代理可直接使用的
   東西(一個類別、一個方法簽名),而非文件頁的片段。
-- **RRF 融合,而非分數混合。** dense 與 sparse 排名以 Reciprocal Rank
-  Fusion 合併——與分數尺度無關,不需校準兩者的分數量級。查詢中的字面
+- **RRF 融合,而非分數混合。** 啟用 sparse 通道時,dense 與 sparse
+  排名以 Reciprocal Rank Fusion 合併——與分數尺度無關,不需校準兩者
+  的分數量級(經評估的預設值僅跑 dense + exact)。查詢中的字面
   CamelCase 名稱直接置頂於融合結果之前,因為字面名稱是遠強於相似度的
   訊號。
 - **繼承鏈靠反射,並可優雅降級。** 祖先鏈(`get_class` 顯示繼承成員

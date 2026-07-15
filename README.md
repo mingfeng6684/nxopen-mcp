@@ -16,10 +16,9 @@ agents in the real docs instead of guesses:
 
 - **Semantic search** (BGE-M3 dense + sparse embeddings) so natural-language
   queries in English or 中文 find the right API even without exact names.
-- **Exact-name lookup** so a literal class/member name (e.g. `CavityMillingBuilder`)
-  is matched precisely, not just approximately.
-- **Exact-name channel**: literal CamelCase tokens in your query are
-  looked up directly and pinned to the top (types first).
+- **Exact-name channel**: a literal CamelCase name in your query (e.g.
+  `CavityMillingBuilder`) is looked up directly and pinned to the top
+  (types first) — never left to approximate matching.
 - **RRF fusion** available to combine channels — though evaluation made
   dense + exact the default (see [Evaluation](#evaluation)).
 
@@ -32,7 +31,7 @@ repo or sent anywhere.
 Requires **Python 3.11+**.
 
 ```bash
-# 1. Install from PyPI
+# 1. Install from PyPI (or run without installing: uvx nxopen-mcp)
 pip install "nxopen-mcp[embed,reflect]"
 
 # 2. Build the index from YOUR NX installation (one-time — see time note below)
@@ -152,9 +151,11 @@ Design decisions:
   (type, property, method, field, or event) rather than an arbitrary text
   window, so retrieval results map 1:1 onto something an agent can act on
   (a class, a method signature) instead of a fragment of a doc page.
-- **RRF fusion, not score blending.** Dense and sparse rankings are
-  combined with Reciprocal Rank Fusion, which is scale-free and doesn't
-  require calibrating dense-vs-sparse score magnitudes against each other.
+- **RRF fusion, not score blending.** When the sparse channel is enabled,
+  dense and sparse rankings are combined with Reciprocal Rank Fusion,
+  which is scale-free and doesn't require calibrating dense-vs-sparse
+  score magnitudes against each other (the evaluated default runs
+  dense + exact only).
   Exact CamelCase name matches are promoted ahead of the fused list
   outright, since a literal name in the query is a much stronger signal
   than similarity.
