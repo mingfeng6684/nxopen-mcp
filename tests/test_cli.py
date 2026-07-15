@@ -60,3 +60,15 @@ def test_fake_embedder_hook_missing_module_fails_helpfully(tmp_path, monkeypatch
                                  "--db", str(tmp_path / "i.db")])
     assert result.exit_code == 1
     assert "NXOPEN_MCP_FAKE_EMBEDDER" in result.output
+
+
+def test_serve_rejects_wrong_schema_version(tmp_path):
+    from nxopen_mcp.retrieval.store import Store
+    db = tmp_path / "old.db"
+    s = Store(db)
+    s.create_schema()
+    s.conn.execute("PRAGMA user_version = 0")
+    s.conn.close()
+    result = runner.invoke(app, ["serve", "--db", str(db)])
+    assert result.exit_code == 1
+    assert "schema version" in result.output

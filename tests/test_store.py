@@ -95,3 +95,15 @@ def test_find_one_partial_match_is_deterministic(store):
     ])
     for _ in range(3):  # same answer every time: shortest full_name wins
         assert store.get_member("CutLevel")["full_name"] == "NXOpen.CAM.CutLevel"
+
+
+def test_schema_version_stamped_and_checked(tmp_path):
+    from nxopen_mcp.retrieval.store import SCHEMA_VERSION, SchemaVersionError, Store
+    s = Store(tmp_path / "v.db")
+    s.create_schema()
+    assert s.conn.execute("PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
+    s.check_schema_version()  # must not raise
+
+    s.conn.execute("PRAGMA user_version = 99")
+    with pytest.raises(SchemaVersionError):
+        s.check_schema_version()

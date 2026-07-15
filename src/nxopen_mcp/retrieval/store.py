@@ -68,6 +68,16 @@ def load_vec_extension(conn: sqlite3.Connection) -> None:
               file=sys.stderr)
 
 
+# Bump when the index layout changes incompatibly. Stored in SQLite's
+# PRAGMA user_version so old software fails fast on new indexes and
+# vice versa, instead of breaking in strange ways.
+SCHEMA_VERSION = 1
+
+
+class SchemaVersionError(RuntimeError):
+    """The index file was built with an incompatible schema version."""
+
+
 class Store:
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
@@ -78,6 +88,16 @@ class Store:
 
     def create_schema(self) -> None:
         self.conn.executescript(_SCHEMA)
+        self.conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+
+    def check_schema_version(self) -> None:
+        """Raise SchemaVersionError if the index doesn't match this software."""
+        found = self.conn.execute("PRAGMA user_version").fetchone()[0]
+        if found != SCHEMA_VERSION:
+            raise SchemaVersionError(
+                f"index at {self.db_path} has schema version {found}, but this "
+                f"version of nxopen-mcp expects {SCHEMA_VERSION}. Rebuild it "
+                f"with `nxopen-mcp index` (or get a matching index file).")
 
     def insert_members(self, records: Iterable[MemberRecord]) -> None:
         rows = [

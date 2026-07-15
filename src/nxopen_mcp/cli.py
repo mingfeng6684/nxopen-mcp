@@ -71,8 +71,14 @@ def serve(db: Path = typer.Option(DEFAULT_DB, help="Index path")):
     from nxopen_mcp.server import create_server
 
     from nxopen_mcp.indexer.embedder import LazyEmbedder
+    from nxopen_mcp.retrieval.store import SchemaVersionError
 
     store = Store(db)
+    try:
+        store.check_schema_version()
+    except SchemaVersionError as e:
+        typer.echo(f"error: {e}")
+        raise typer.Exit(1)
     load_vec_extension(store.conn)
     # Lazy: the MCP handshake answers instantly; BGE-M3 loads on the
     # first semantic query (exact lookups never need it).
