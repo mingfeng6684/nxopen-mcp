@@ -168,8 +168,13 @@ available via the `channels` parameter of `search()`.
 
 ## Demo
 
-> **Placeholder.** A demo GIF showing an agent using `search_api` /
-> `find_builder` to write correct NXOpen code will go here.
+![Claude Code querying the real NXOpen API through nxopen-mcp](docs/demo.gif)
+
+A real session: Claude Code answers "幫我寫一個設定主軸轉速的 NXOpen 程式"
+by calling `search_api` (Chinese/English semantic search) and `get_class`
+(members + inheritance chain), then writes code in which every member —
+`FeedsBuilder`, `SpindleRpmToggle`, `SpindleRpmBuilder.Value` — exists in
+the real API, with NX version info to prove it.
 
 ## Sharing a pre-built index
 
