@@ -197,9 +197,10 @@ Design decisions:
 ## Evaluation
 
 Measured on a real index built from an NX 12 installation (97,913 API
-members) against a 33-query golden set (`eval/golden.jsonl`, mixed
-English / Traditional Chinese, four query styles: semantic description,
-exact class name, member lookup, builder idiom):
+members) against a 73-query golden set (`eval/golden.jsonl`, mixed
+English / Traditional Chinese, four query styles — semantic description,
+exact class name, member lookup, builder idiom — spanning CAM, Features,
+Sketch, Assemblies, Drawings, UF, and BlockStyler):
 
 ```bash
 python eval/run_eval.py --db ~/.nxopen-mcp/index.db
@@ -207,15 +208,15 @@ python eval/run_eval.py --db ~/.nxopen-mcp/index.db
 
 | config | Recall@5 | Recall@10 | MRR |
 |---|---|---|---|
-| dense-only | 69.70% | 78.79% | 0.551 |
-| sparse-only | 39.39% | 45.45% | 0.252 |
-| **dense+exact (default)** | **69.70%** | **78.79%** | **0.551** |
-| dense+sparse+exact | 54.55% | 60.61% | 0.468 |
+| dense-only | 58.90% | 68.49% | 0.420 |
+| sparse-only | 34.25% | 38.36% | 0.193 |
+| **dense+exact (default)** | **58.90%** | **68.49%** | **0.445** |
+| dense+sparse+exact | 49.32% | 61.64% | 0.409 |
 
 ### With vs. without the tool: hallucination test
 
-Same model (Claude Haiku), same 33 questions, one variable — whether the
-nxopen-mcp tools are available. Answers were graded against the golden
+Same model (Claude Haiku), the original 33 golden questions, one
+variable — whether the nxopen-mcp tools are available. Answers were graded against the golden
 set; "hallucinated" means the proposed member does not exist anywhere in
 the real 97,913-member index:
 
@@ -234,11 +235,13 @@ per question and eliminated hallucinations entirely.
 
 **Evaluation-driven default.** The original design fused dense, sparse
 and exact-name channels with uniform RRF. Measurement showed BGE-M3's
-sparse channel *hurt* on this corpus: fusing it dragged Recall@5 from
-69.7% down to 54.5%, and a weight sweep (w_sparse ∈ {0.5, 0.3, 0.15})
-never recovered the dense-only baseline. The exact-name channel — after
-reordering its matches (types first, shortest name first, capped at 3)
-— matched the dense baseline while guaranteeing literal-name hits. The
+sparse channel *hurt* on this corpus — on the initial 33-query set a
+weight sweep (w_sparse ∈ {0.5, 0.3, 0.15}) never recovered the
+dense-only baseline, and expanding the golden set to 73 queries
+replicated the finding (Recall@5 58.9% → 49.3% when sparse is fused).
+The exact-name channel — after reordering its matches (types first,
+shortest name first, capped at 3) — matches dense recall while
+*improving* MRR (0.420 → 0.445) and guaranteeing literal-name hits. The
 default is therefore **dense + exact**; the sparse channel remains
 available via the `channels` parameter of `search()`.
 

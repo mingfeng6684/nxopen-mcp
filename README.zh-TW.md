@@ -179,9 +179,10 @@ NXOpen*.xml / *.dll  (你的 NX 安裝)
 
 ## 評估
 
-以真實 NX 12 安裝建出的索引(97,913 個 API 成員)、33 題 golden set
-(`eval/golden.jsonl`,中英混合,四種查詢型態:語意描述、精確類別名、
-成員查詢、Builder 慣用法)實測:
+以真實 NX 12 安裝建出的索引(97,913 個 API 成員)、73 題 golden set
+(`eval/golden.jsonl`,中英混合,四種查詢型態——語意描述、精確類別名、
+成員查詢、Builder 慣用法——涵蓋 CAM、Features、Sketch、Assemblies、
+Drawings、UF、BlockStyler)實測:
 
 ```bash
 python eval/run_eval.py --db ~/.nxopen-mcp/index.db
@@ -189,15 +190,15 @@ python eval/run_eval.py --db ~/.nxopen-mcp/index.db
 
 | 配置 | Recall@5 | Recall@10 | MRR |
 |---|---|---|---|
-| 僅 dense | 69.70% | 78.79% | 0.551 |
-| 僅 sparse | 39.39% | 45.45% | 0.252 |
-| **dense+exact(預設)** | **69.70%** | **78.79%** | **0.551** |
-| dense+sparse+exact | 54.55% | 60.61% | 0.468 |
+| 僅 dense | 58.90% | 68.49% | 0.420 |
+| 僅 sparse | 34.25% | 38.36% | 0.193 |
+| **dense+exact(預設)** | **58.90%** | **68.49%** | **0.445** |
+| dense+sparse+exact | 49.32% | 61.64% | 0.409 |
 
 ### 有工具 vs. 無工具:幻覺測試
 
-同一個模型(Claude Haiku)、同樣 33 題,唯一變數是有沒有 nxopen-mcp
-工具。答案對照 golden set 評分;「幻覺」指提出的成員在真實的 97,913
+同一個模型(Claude Haiku)、最初的 33 題 golden 題目,唯一變數是有
+沒有 nxopen-mcp 工具。答案對照 golden set 評分;「幻覺」指提出的成員在真實的 97,913
 筆索引中完全不存在:
 
 | 指標 | closed-book(無工具) | 有 nxopen-mcp |
@@ -213,12 +214,13 @@ python eval/run_eval.py --db ~/.nxopen-mcp/index.db
 工具輔助每題多花約 7 秒,並完全消除了幻覺。
 
 **評估驅動的預設值。** 原始設計以均權 RRF 融合 dense、sparse 與精確
-名稱三通道。實測顯示 BGE-M3 的 sparse 通道在此語料上*有害*:融合它使
-Recall@5 從 69.7% 掉到 54.5%,權重掃描(w_sparse ∈ {0.5, 0.3, 0.15})
-也無法追回 dense-only 基準。精確名稱通道在重排其結果後(型別優先、
-短名優先、上限 3 筆)追平 dense 基準,同時保證字面名稱必命中。因此
-預設為 **dense + exact**;sparse 通道仍可經 `search()` 的 `channels`
-參數啟用。
+名稱三通道。實測顯示 BGE-M3 的 sparse 通道在此語料上*有害*——最初的
+33 題權重掃描(w_sparse ∈ {0.5, 0.3, 0.15})無法追回 dense-only 基準,
+golden set 擴充到 73 題後結論複現(融合 sparse 使 Recall@5 從 58.9%
+掉到 49.3%)。精確名稱通道在重排其結果後(型別優先、短名優先、上限
+3 筆)追平 dense 召回率,並*提升* MRR(0.420 → 0.445),同時保證字面
+名稱必命中。因此預設為 **dense + exact**;sparse 通道仍可經
+`search()` 的 `channels` 參數啟用。
 
 ## Demo
 
